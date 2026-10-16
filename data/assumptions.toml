@@ -9,6 +9,7 @@
 #   [Q4 FY25 PR] CoreWeave Q4 & full-year 2025 results press release (26 Feb 2026)
 #   [Q2 FY26 PR] CoreWeave Q2 2026 results press release (11 Aug 2026)
 #   [Q2 FY26 call] Guidance given on the Q2 2026 earnings call, as reported in press coverage
+#   [10-Q Q2 FY26] CoreWeave quarterly report for the quarter ended 30 June 2026, filed with the SEC
 #   (10-K "Note 5" etc. = the numbered notes to the financial statements inside the 10-K)
 
 
@@ -107,3 +108,189 @@ cash_capex_q2_2026 = 6422 # [Q2 FY26 PR] "purchases of property and equipment"
 
 fy2026_capex_guidance_low  = 35000 # [Q2 FY26 call] raised from $31-35B on the Q1 call
 fy2026_capex_guidance_high = 39000 # [Q2 FY26 call]
+
+
+[debt_summary]
+# How much CoreWeave owes, and what it has to pay with. All figures at 30 June 2026.
+
+total_debt_principal_2026_06_30 = 35551 # [10-Q Q2 FY26] Note 10: sum of the future principal payments
+total_debt_principal_2025_12_31 = 21615 # [10-K FY25] Note 10: "Total principal of debt"
+
+cash_2026_06_30 = 5524 # [Q2 FY26 PR] balance sheet: cash and cash equivalents
+restricted_cash_2026_06_30 = 1380 # [Q2 FY26 PR] 873 current + 507 non-current; locked up for lenders, NOT free to spend
+
+# Revolving credit facility = a corporate credit card: borrow, repay, borrow again, up to a limit.
+revolver_size = 2500 # [10-Q Q2 FY26] MD&A: "$2.5 billion Revolving Credit Facility"
+revolver_undrawn_2026_06_30 = 2000 # [10-Q Q2 FY26] Note 10: "$2.0 billion of remaining capacity" (nothing drawn)
+
+# Interest actually owed on the debt ("contractual" = what the loan agreements say).
+contractual_interest_fy2025 = 1220 # [10-K FY25] Note 10 interest table
+contractual_interest_h1_2026 = 1075 # [10-Q Q2 FY26] Note 10: six months to 30 June 2026
+contractual_interest_q2_2026 = 592  # [10-Q Q2 FY26] Note 10: three months to 30 June 2026
+
+# Operating leases = long-term rent on data centers. Not counted as "debt" above, but they are
+# fixed payments CoreWeave must make, so credit analysts often treat them like debt.
+operating_lease_liabilities_2026_06_30 = 16319 # [Q2 FY26 PR] balance sheet, current + non-current
+operating_lease_liabilities_2025_12_31 = 8195  # [Q2 FY26 PR] balance sheet, current + non-current
+
+# Covenants = rules in the loan agreements (e.g. minimum cash, maximum debt vs earnings).
+# The 10-K says CoreWeave must meet "specified financial covenant ratios" but doesn't publish them,
+# so in Phase 4 we'll set our own default rules and label them as OUR assumptions.
+
+
+[debt_maturities]
+# When the $35.6B of principal has to be repaid (or refinanced = replaced with new borrowing).
+# A big year here is a "maturity wall", the moment refinancing risk bites hardest.
+# [10-Q Q2 FY26] Note 10: future principal payments as of 30 June 2026
+
+remaining_2026 = 4413 # July-December 2026 only
+y2027 = 6184
+y2028 = 4416
+y2029 = 2421
+y2030 = 3221
+thereafter = 14896 # 2031 and later
+
+
+# ---------------------------------------------------------------------------------------------
+# Individual loans at 30 June 2026. Each [[debt_facilities]] block is one loan.
+# [10-Q Q2 FY26] Note 10 debt table, unless noted otherwise.
+#
+#   principal       = amount owed today ($ millions)
+#   effective_rate  = all-in yearly interest cost incl. fees, from the 10-Q table (0.10 = 10%)
+#   floating_share  = share of the loan whose rate moves with SOFR (1 = fully floating, 0 = fixed)
+#                     The 10-K says "all of the debt under our Credit Facilities [the DDTLs and
+#                     revolver] bears interest at variable rates, the majority of which is unhedged."
+#   recourse        = true if CoreWeave itself must repay; false if lenders can only take the
+#                     specific GPUs/assets securing the loan
+#
+# DDTL = "delayed draw term loan": a loan CoreWeave draws in chunks as it buys GPUs, with the
+# GPUs as collateral, then repays in instalments.
+# ---------------------------------------------------------------------------------------------
+
+[[debt_facilities]]
+name = "DDTL 1.0"
+principal = 1300
+effective_rate = 0.15
+floating_share = 1.0
+maturity_year = 2028 # March 2028; repaid in quarterly instalments
+recourse = true
+
+[[debt_facilities]]
+name = "DDTL 2.0"
+principal = 3190
+effective_rate = 0.11
+floating_share = 1.0
+maturity_year = 2030 # August 2030; quarterly instalments from Jan 2026
+recourse = true
+
+[[debt_facilities]]
+name = "DDTL 2.1"
+principal = 3000
+effective_rate = 0.09
+floating_share = 1.0 # SOFR + 4.25% [10-K FY25]
+maturity_year = 2031 # March 2031; quarterly instalments from July 2026
+recourse = true
+
+[[debt_facilities]]
+name = "DDTL 3.0"
+principal = 2215
+effective_rate = 0.09
+floating_share = 1.0 # SOFR + 4.00% [10-K FY25]; lenders require swaps fixing at least 75% of it
+maturity_year = 2030 # August 2030; monthly instalments from April 2026
+recourse = true
+
+[[debt_facilities]]
+name = "DDTL 4.0"
+principal = 2837
+effective_rate = 0.07
+floating_share = 0.48 # ~$1.4B floating (SOFR + 2.25%) vs ~$1.5B fixed (Treasury + 2.00%) [10-Q Q2 FY26]
+maturity_year = 2032 # March 2032; $8.5B facility, more can be drawn until June 2027
+recourse = false
+
+[[debt_facilities]]
+name = "DDTL 5.0"
+principal = 1101
+effective_rate = 0.09
+floating_share = 1.0 # SOFR + 4.50% [10-Q Q2 FY26]; $3.1B facility
+maturity_year = 2031 # November 2031
+recourse = true
+
+[[debt_facilities]]
+name = "2030 Senior Notes (9.25%)"
+principal = 2000
+effective_rate = 0.10
+floating_share = 0.0 # bonds: fixed coupon
+maturity_year = 2030 # June 2030; repaid in one lump at the end ("bullet")
+recourse = true
+
+[[debt_facilities]]
+name = "2031 Senior Notes (9.00%)"
+principal = 1750
+effective_rate = 0.10
+floating_share = 0.0
+maturity_year = 2031 # February 2031; bullet
+recourse = true
+
+[[debt_facilities]]
+name = "2031 Senior Notes (9.75%)"
+principal = 2750
+effective_rate = 0.10
+floating_share = 0.0
+maturity_year = 2031 # October 2031; bullet
+recourse = true
+
+[[debt_facilities]]
+name = "2032 Senior Notes (9.625%)"
+principal = 1250
+effective_rate = 0.10
+floating_share = 0.0
+maturity_year = 2032 # July 2032; bullet
+recourse = true
+
+[[debt_facilities]]
+name = "2032 EUR Senior Notes (8.50%)"
+principal = 2279 # EUR 2.0 billion, shown in dollars; currency risk hedged with swaps
+effective_rate = 0.09
+floating_share = 0.0
+maturity_year = 2032 # July 2032; bullet
+recourse = true
+
+[[debt_facilities]]
+name = "2031 Convertible Notes (1.75%)"
+principal = 2588 # convertible = lenders may swap the debt for shares if the stock rises
+effective_rate = 0.02
+floating_share = 0.0
+maturity_year = 2031 # December 2031
+recourse = true
+
+[[debt_facilities]]
+name = "2032 Convertible Notes (1.75%)"
+principal = 4000
+effective_rate = 0.02
+floating_share = 0.0
+maturity_year = 2032 # October 2032
+recourse = true
+
+[[debt_facilities]]
+name = "OEM financing (recourse)"
+principal = 4220 # equipment financing from hardware/software suppliers
+effective_rate = 0.11
+floating_share = 0.0 # OUR ASSUMPTION: rate type not disclosed, treated as fixed
+maturity_year = 2030 # various, Dec 2026 to Jul 2030; paid down over time
+recourse = true
+
+[[debt_facilities]]
+name = "OEM financing (non-recourse)"
+principal = 882
+effective_rate = 0.09
+floating_share = 0.0 # OUR ASSUMPTION: rate type not disclosed, treated as fixed
+maturity_year = 2028 # various, Aug 2026 to Aug 2028
+recourse = false
+
+[[debt_facilities]]
+name = "Magnetar loan"
+principal = 189
+effective_rate = 0.12
+floating_share = 0.0 # OUR ASSUMPTION: rate type not disclosed, treated as fixed
+maturity_year = 2029 # January 2029
+recourse = true
