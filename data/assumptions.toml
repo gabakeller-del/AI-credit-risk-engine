@@ -9,6 +9,7 @@
 #   [Q4 FY25 PR] CoreWeave Q4 & full-year 2025 results press release (26 Feb 2026)
 #   [Q2 FY26 PR] CoreWeave Q2 2026 results press release (11 Aug 2026)
 #   [Q2 FY26 call] Guidance given on the Q2 2026 earnings call, as reported in press coverage
+#   (10-K "Note 5" etc. = the numbered notes to the financial statements inside the 10-K)
 
 
 [revenue]
@@ -54,3 +55,55 @@ microsoft_share_of_fy2025_revenue = 0.67 # [10-K FY25] Risk Factors: "approximat
 # The 10-K says each is expected to become a "significant customer".
 openai_contract_value = 6500 # [10-K FY25] Risk Factors: "up to approximately $6.5 billion through May 31, 2031" (Sept 2025 order)
 meta_contract_value   = 14200 # [10-K FY25] Risk Factors: "initially committed ... up to approximately $14.2 billion through December 2031"
+
+
+[operating_costs]
+# FY2025 expenses from the income statement. NOTE: these INCLUDE depreciation and
+# stock-based compensation, which are not cash going out the door this year.
+
+cost_of_revenue_fy2025            = 1453 # [10-K FY25] MD&A results table: data center rent, power, staff
+technology_and_infrastructure_fy2025 = 2929 # [10-K FY25] MD&A results table: mostly server/GPU depreciation
+sales_and_marketing_fy2025        = 144  # [10-K FY25] MD&A results table
+general_and_administrative_fy2025 = 651  # [10-K FY25] MD&A results table
+total_operating_expenses_fy2025   = 5177 # [10-K FY25] MD&A results table (revenue 5131 - 5177 = operating loss of 46)
+
+# Stock-based compensation: paying staff in shares. A real cost to shareholders, but not cash.
+stock_based_comp_fy2025 = 630 # [10-K FY25] MD&A table: 15 + 221 + 31 + 363 across the four lines
+
+# Adjusted EBITDA = earnings before interest, tax, depreciation and amortization (and SBC).
+# A rough measure of the cash the business generates before paying for debt and new equipment.
+adjusted_ebitda_fy2025        = 3093 # [Q4 FY25 PR]
+adjusted_ebitda_margin_fy2025 = 0.60 # [Q4 FY25 PR] 3093 / 5131
+adjusted_ebitda_q2_2026        = 1510 # [Q2 FY26 PR]
+adjusted_ebitda_margin_q2_2026 = 0.59 # [Q2 FY26 PR]
+
+
+[depreciation]
+# Depreciation = spreading the cost of equipment over the years it's useful.
+# This is the heart of the "GPU depreciation" stress test.
+
+gpu_useful_life_years = 6 # [10-K FY25] Note 1: "Technology equipment 6 years" (raised from 5 years in Jan 2023)
+previous_gpu_useful_life_years = 5 # [10-K FY25] Note 1: the estimate before 1 Jan 2023
+
+depreciation_and_amortization_fy2025 = 2454 # [10-K FY25] cash flow statement (2,454; FY2024 was 863)
+
+# What the equipment is worth on the balance sheet at 31 Dec 2025.
+technology_equipment_gross_2025_12_31 = 20903 # [10-K FY25] Note 5: GPUs, servers, networking at original cost
+construction_in_progress_2025_12_31   = 9376  # [10-K FY25] Note 5: bought/being built, not yet in use (not yet depreciating)
+total_ppe_gross_2025_12_31            = 33941 # [10-K FY25] Note 5: all property & equipment at original cost
+accumulated_depreciation_2025_12_31   = 3384  # [10-K FY25] Note 5: total depreciation charged so far
+total_ppe_net_2025_12_31              = 30557 # [10-K FY25] Note 5: 33,941 - 3,384
+
+
+[capex]
+# Capex (capital expenditure) = cash spent buying GPUs, servers and data-center equipment.
+# CoreWeave borrows heavily to fund this, which is why it matters for credit risk.
+
+cash_capex_fy2024 = 8700  # [10-K FY25] Liquidity section: "$8.7 billion"
+cash_capex_fy2025 = 10300 # [10-K FY25] Liquidity section: "$10.3 billion"
+cash_capex_q2_2026 = 6422 # [Q2 FY26 PR] "purchases of property and equipment"
+# (Press coverage quotes Q2 2026 capex of ~$9.4B; that wider measure includes equipment
+#  received but not yet paid for. We use the cash figure.)
+
+fy2026_capex_guidance_low  = 35000 # [Q2 FY26 call] raised from $31-35B on the Q1 call
+fy2026_capex_guidance_high = 39000 # [Q2 FY26 call]
