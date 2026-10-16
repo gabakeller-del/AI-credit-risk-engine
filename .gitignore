@@ -1,0 +1,15 @@
+# Virtual environment (rebuild it from requirements.txt instead of uploading it)
+.venv/
+
+# Generated results and charts
+outputs/
+
+# Python's automatic cache files
+__pycache__/
+*.pyc
+
+# Jupyter notebook autosaves
+.ipynb_checkpoints/
+
+# Mac system files
+.DS_Store

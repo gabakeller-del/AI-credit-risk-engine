@@ -19,6 +19,7 @@ A Python Monte Carlo simulator that models CoreWeave's cash flows and debt, stre
 (major customer loss, faster GPU depreciation, refinancing rate spikes), and estimates the probability of default.
 
 ## Setup facts
-- Run Python with `python3` (plain `python` doesn't exist on this Mac).
+- Run project code with the virtual environment's Python: `.venv/bin/python` (plain `python` doesn't exist on this Mac).
+- Install tools with `.venv/bin/pip install -r requirements.txt`; add new tools to `requirements.txt` with exact versions.
 - GitHub repo: https://github.com/gabakeller-del/AI-credit-risk-engine
 - All assumptions (revenue, debt, rates) are stored in config files, not hard-coded, and each one notes its source.
