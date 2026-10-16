@@ -1,0 +1,56 @@
+# CoreWeave model assumptions
+# ---------------------------
+# Every number the model uses lives here, with its source, so nothing is hidden in the code.
+# Units: US dollars in MILLIONS unless the name says otherwise (e.g. 5131 = $5.131 billion).
+# Percentages are written as decimals (0.67 = 67%).
+#
+# Sources:
+#   [10-K FY25]  CoreWeave annual report for 2025, filed with the SEC (Feb 2026)
+#   [Q4 FY25 PR] CoreWeave Q4 & full-year 2025 results press release (26 Feb 2026)
+#   [Q2 FY26 PR] CoreWeave Q2 2026 results press release (11 Aug 2026)
+#   [Q2 FY26 call] Guidance given on the Q2 2026 earnings call, as reported in press coverage
+
+
+[revenue]
+# What CoreWeave has actually earned (its "top line").
+
+fy2023_actual = 229   # [10-K FY25] Business section
+fy2024_actual = 1915  # [Q4 FY25 PR]
+fy2025_actual = 5131  # [Q4 FY25 PR]
+
+q2_2025_actual = 1212 # [Q2 FY26 PR] same quarter last year, for comparison
+q2_2026_actual = 2575 # [Q2 FY26 PR] most recent quarter
+
+# Management's forecast for full-year 2026 (a low and a high estimate).
+fy2026_guidance_low  = 12400 # [Q2 FY26 call]
+fy2026_guidance_high = 13200 # [Q2 FY26 call]
+
+
+[backlog]
+# Backlog = revenue customers have already signed contracts for but CoreWeave hasn't earned yet.
+# It matters for credit risk because it's the "visible" future cash that lenders lean on.
+
+total_backlog_2025_12_31 = 66800  # [Q4 FY25 PR] company's headline "revenue backlog"
+total_backlog_2026_06_30 = 104000 # [Q2 FY26 PR] "approximately $104 billion"
+
+# RPO (remaining performance obligations) = the strict accounting version of backlog.
+rpo_2025_12_31 = 60700 # [10-K FY25] Note 2, Remaining Performance Obligations
+
+# When the RPO turns into revenue (shares of the $60.7B; they add up to 100%).
+rpo_share_months_1_to_24  = 0.43 # [10-K FY25] Note 2: recognized by 31 Dec 2027
+rpo_share_months_25_to_48 = 0.38 # [10-K FY25] Note 2
+rpo_share_months_49_to_84 = 0.19 # [10-K FY25] Note 2: "remaining balance"
+
+weighted_avg_contract_years = 5 # [10-K FY25] Business section: "approximately five years"
+
+
+[customers]
+# Customer concentration = how much revenue depends on a few big customers.
+# This drives our "customer loss" stress test: if Microsoft leaves, how much revenue disappears?
+
+microsoft_share_of_fy2025_revenue = 0.67 # [10-K FY25] Risk Factors: "approximately 67%" from top customer, Microsoft
+
+# Large newer contracts (total value over the contract life, not per year).
+# The 10-K says each is expected to become a "significant customer".
+openai_contract_value = 6500 # [10-K FY25] Risk Factors: "up to approximately $6.5 billion through May 31, 2031" (Sept 2025 order)
+meta_contract_value   = 14200 # [10-K FY25] Risk Factors: "initially committed ... up to approximately $14.2 billion through December 2031"
