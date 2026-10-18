@@ -392,3 +392,37 @@ max_forward_leverage = 6.0
 # 2. INTEREST COVER COVENANT. If EBITDA / interest falls below this, the covenant is breached
 #    = COVENANT DEFAULT. 1.5x is a typical level in loan agreements.
 min_interest_cover = 1.5
+
+
+[monte_carlo]
+# Phase 5: run the projection many times, each with random surprises, and count the defaults.
+# "stdev" = standard deviation = the typical size of a surprise. About 2/3 of random draws land
+# within 1 stdev of the centre, about 95% within 2 stdevs. All are OUR ASSUMPTIONS.
+
+n_simulations = 10000
+
+# Seed = the starting point for the random number generator. Using the same seed gives the
+# same "random" futures every run, so results can be checked and compared.
+# Change it to see a different batch of futures.
+seed = 42
+
+# Revenue growth surprise, added to each year's growth in [projection].revenue_growth.
+# 2027: +/- 20 points, because analysts' 2027 forecasts span ~$21-31B (~+65% to +142% growth) [Consensus Oct26].
+# 2028-2030: +/- 10 points a year.
+# (The Jul-Dec 2026 period isn't random: it's mostly already contracted, and guidance is recent.)
+revenue_growth_stdev = [0.0, 0.20, 0.10, 0.10, 0.10]
+min_revenue_growth = -0.50 # growth can't be worse than -50% in a year (keeps draws realistic)
+
+# EBITDA margin surprise: +/- 4 points around [projection].ebitda_margin, drawn once per future
+# (a business that runs less efficiently tends to stay that way).
+# Recent margins: Q1 2026 56%, Q2 2026 59%, FY2025 60% [Q1/Q2 FY26 PR, Q4 FY25 PR].
+ebitda_margin_stdev = 0.04
+
+# Interest rate on NEW debt: +/- 1.5 points around [projection].new_debt_rate, drawn once per future.
+# 2026 bond deals ranged 8.50%-9.75% [10-Q Q2 FY26], and credit markets can move quickly.
+new_debt_rate_stdev = 0.015
+min_new_debt_rate = 0.05 # rates can't fall below 5% (roughly risk-free rate + a small margin)
+
+# SIMPLIFICATIONS:
+# - Surprises are independent (in reality a weak economy might lower growth AND raise rates together).
+# - Capex is NOT random: the GPUs are already ordered, so CoreWeave pays for them even if revenue disappoints.
