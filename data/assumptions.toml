@@ -426,3 +426,56 @@ min_new_debt_rate = 0.05 # rates can't fall below 5% (roughly risk-free rate + a
 # SIMPLIFICATIONS:
 # - Surprises are independent (in reality a weak economy might lower growth AND raise rates together).
 # - Capex is NOT random: the GPUs are already ordered, so CoreWeave pays for them even if revenue disappoints.
+
+
+# =============================================================================================
+# Phase 7: STRESS SCENARIOS. Each one changes the base assumptions, then the full Monte Carlo
+# runs on top. All severities are OUR ASSUMPTIONS, sized from the evidence noted beside them.
+# =============================================================================================
+
+[scenarios.customer_loss]
+description = "Largest customer (likely Microsoft) leaves from 2027"
+start_year = 2027
+
+# Share of revenue that disappears. Evidence [10-Q Q2 FY26] Note 2, Significant Customers:
+# largest customer ("Customer A") = 36% of Q2 2026 revenue, down from 71% in Q2 2025, as others ramp.
+# We assume ~30% by 2027.
+lost_revenue_share = 0.30
+
+# How much EBITDA falls per $1 of lost revenue. Most costs (data-center leases, staff) are fixed in
+# the short run; only some power is saved. OUR ASSUMPTION: 80 cents.
+ebitda_lost_per_dollar = 0.80
+
+# Capex is NOT cut: GPUs are already ordered (same as the base case).
+
+
+[scenarios.gpu_depreciation]
+description = "GPUs last 4 years, not 6: earlier replacement + lenders lend less"
+
+useful_life_years = 4 # vs 6 in the base case [10-K FY25] Note 1
+base_useful_life_years = 6
+
+# Cash spent on equipment each year: these are the GPU "batches" that will need replacing.
+# 2023-2025 [10-K FY25] cash flow statement; 2026 = full-year capex guidance midpoint [Q2 FY26 call].
+gpu_purchases = { 2023 = 2943, 2024 = 8702, 2025 = 10309, 2026 = 37000 }
+
+# Replacing a batch costs this share of what it originally cost: only the servers are replaced
+# (not buildings, power, networking), and newer chips give more compute per dollar. OUR ASSUMPTION.
+replacement_cost_share = 0.50
+
+# Lenders lend less against collateral that loses value faster. OUR ASSUMPTION (base: 6.0x).
+max_forward_leverage = 5.0
+
+
+[scenarios.rate_spike]
+description = "Credit markets tighten: costlier new debt, higher SOFR, stricter lenders"
+
+# New borrowing costs this much more. 9.5% -> 14.5%. Evidence: CoreWeave's DDTL 1.0 loan
+# already carries a 15% effective rate [10-Q Q2 FY26] Note 10.
+new_debt_rate_increase = 0.05
+
+# Floating-rate loans (those tied to SOFR) pay this much more. In 2022, US rates rose ~4 points in a year.
+floating_rate_increase = 0.03
+
+# Lenders tighten. OUR ASSUMPTION (base: 6.0x).
+max_forward_leverage = 4.5
