@@ -316,3 +316,47 @@ cash_taxes = 0
 # Interest: SIMPLIFICATION. We charge each loan's effective rate on its 30 June 2026 balance
 # for a full year. Real 2026 interest will be lower (debt was smaller in early 2026), so this
 # slightly overstates it. We'll model balances changing over time in Phase 3.
+
+
+[projection]
+# Phase 3: five years, 2026-2030. Year 1 (2026) is the Phase 2 base case.
+# Lists below have one value per year, in order: [2026, 2027, 2028, 2029, 2030].
+#
+# Source for the 2027 anchor:
+#   [Consensus Oct26] Analyst average 2027 revenue ~$26.3B (range $21.1B-$31.0B), per Yahoo
+#   Finance / StockAnalysis analyst tables, Oct 2026. 2028 forecasts vary a lot ($29B-$43B).
+
+years = [2026, 2027, 2028, 2029, 2030]
+
+# Revenue growth vs the year before. 2026 is the guidance midpoint, so its growth isn't used.
+# 2027: +105% gets us to ~$26.3B = [Consensus Oct26].
+# 2028-2030: OUR ASSUMPTION. Growth slows as the backlog converts and the build-out matures
+# (deliberately below the most bullish 2028 forecasts).
+revenue_growth = [0.0, 1.05, 0.35, 0.20, 0.10]
+
+# EBITDA margin: OUR ASSUMPTION. Held at the Q2 2026 level (59%) every year.
+ebitda_margin = [0.59, 0.59, 0.59, 0.59, 0.59]
+
+# Capex ($ millions). 2026 = guidance midpoint [Q2 FY26 call].
+# 2027-2030: OUR ASSUMPTION. Rule of thumb from 2026: ~$2.7 of capex buys ~$1 of extra yearly
+# revenue the following year ($37B capex in 2026 -> ~$13.5B more revenue in 2027).
+# Applying that to our growth path gives roughly 25B, 19.5B, 12B, then a $10B floor in 2030
+# to cover replacing GPUs that wear out.
+capex = [37000, 25000, 19500, 12000, 10000]
+
+# Cash taxes: OUR ASSUMPTION. Zero, as in the base case (accounting losses, big depreciation).
+cash_taxes = [0, 0, 0, 0, 0]
+
+# New borrowing: whenever cash would fall below the minimum, CoreWeave borrows the difference.
+# Interest rate on that new debt: OUR ASSUMPTION, based on its 2026 bond deals
+# (9.75% and 9.625% USD notes, 8.50% EUR notes [10-Q Q2 FY26]).
+new_debt_rate = 0.095
+
+# Minimum cash: OUR ASSUMPTION. A safety buffer CoreWeave won't let cash fall below.
+minimum_cash = 2000
+
+# SIMPLIFICATIONS (we'll revisit these):
+# - Year 1 starts from the 30 June 2026 debt and cash balances, like Phase 2.
+# - Interest on new borrowing starts the year AFTER it's borrowed.
+# - New borrowing isn't repaid within the 5 years.
+# - No new shares (equity) are issued; all funding gaps are filled with debt.
