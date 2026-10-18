@@ -58,6 +58,7 @@ def run_simulation(a, n_simulations=None, seed=None):
             "ebitda_margin": p["ebitda_margin"][0],
             "new_debt_rate": p["new_debt_rate"],
             "peak_debt": table.loc["Closing debt"].max(),
+            "debt_path": list(table.loc["Closing debt"]),  # closing debt in each period, for the fan chart
             "worst_forward_leverage": table.loc["Forward leverage (x)"].max(),
             "worst_interest_cover": table.loc["Interest cover (x)"].min(),
         })
