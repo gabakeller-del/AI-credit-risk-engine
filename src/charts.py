@@ -1,4 +1,5 @@
-"""Charts of the Monte Carlo results (Phase 6). Saves PNG images into the outputs/ folder.
+"""Charts of the Monte Carlo and stress test results. Saves PNG images into docs/figures/,
+where the README and report on GitHub can show them.
 
 Run it from the project folder with:
     .venv/bin/python src/charts.py
@@ -13,9 +14,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from cash_flow import load_assumptions, project_years
+from scenarios import compare_scenarios
 from simulation import run_simulation
 
-OUTPUT_DIR = Path(__file__).parent.parent / "outputs"
+OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "figures"
 
 # Colours: one blue family for the data, grey for text and axes, red ONLY for "default".
 BLUE_LIGHT = "#b7d3f6"
@@ -139,8 +141,39 @@ def default_drivers_chart(results, base, path):
     plt.close(fig)
 
 
+def scenario_chart(rows, path):
+    """Chart 4: probability of default under each stress scenario (one bar each)."""
+    names = [r["Scenario"] for r in rows][::-1]  # reversed so the base case sits at the top
+    pds = [r["Probability of default"] * 100 for r in rows][::-1]
+    y = np.arange(len(names))
+
+    fig, ax = plt.subplots(figsize=(9, 4.6), facecolor=BACKGROUND)
+    # Rough market-implied range, as a reference band (see report for how it's estimated).
+    ax.axvspan(30, 35, color=GRID, zorder=0)
+    ax.annotate("← grey band: rough range implied\n    by CoreWeave's bond prices (30-35%)", (36, len(names) - 1),
+                ha="left", va="center", fontsize=8.5, color=TEXT_SOFT)
+
+    ax.barh(y, pds, height=0.55, color=BLUE_MID, zorder=2)
+    for yi, value in zip(y, pds):
+        ax.annotate(f"{value:.1f}%", (value, yi), xytext=(5, 0), textcoords="offset points",
+                    va="center", fontsize=9.5, color=TEXT, fontweight="bold")
+
+    ax.set_yticks(y, names)
+    ax.tick_params(axis="y", length=0, labelsize=10, labelcolor=TEXT)
+    ax.set_xlim(0, 108)
+    ax.xaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter("%.0f%%"))
+    ax.set_xlabel("Probability of default, July 2026 to December 2030", color=TEXT_SOFT, fontsize=9)
+    style_axes(ax, "Losing the largest customer is the dominant credit risk",
+               "Share of 10,000 simulated futures that default, under each stress scenario")
+    ax.grid(axis="y", visible=False)
+    ax.grid(axis="x", color=GRID, linewidth=0.8)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150, facecolor=BACKGROUND)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
-    OUTPUT_DIR.mkdir(exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     a = load_assumptions()
     labels = list(project_years(a)[0].columns)  # period names, e.g. "Jul-Dec 2026", "2027", ...
     results = run_simulation(a)
@@ -148,4 +181,5 @@ if __name__ == "__main__":
     debt_fan_chart(results, labels, OUTPUT_DIR / "1_debt_fan.png")
     leverage_histogram(results, a["default_rules"]["max_forward_leverage"], OUTPUT_DIR / "2_leverage_histogram.png")
     default_drivers_chart(results, a["projection"], OUTPUT_DIR / "3_default_drivers.png")
+    scenario_chart(compare_scenarios(a), OUTPUT_DIR / "4_scenarios.png")
     print(f"Saved charts to {OUTPUT_DIR}")
