@@ -13,3 +13,6 @@ __pycache__/
 
 # Mac system files
 .DS_Store
+
+# Notes for Claude Code (kept on this computer only)
+CLAUDE.md
