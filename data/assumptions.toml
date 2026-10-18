@@ -7,6 +7,7 @@
 # Sources:
 #   [10-K FY25]  CoreWeave annual report for 2025, filed with the SEC (Feb 2026)
 #   [Q4 FY25 PR] CoreWeave Q4 & full-year 2025 results press release (26 Feb 2026)
+#   [Q1 FY26 PR] CoreWeave Q1 2026 results press release (7 May 2026)
 #   [Q2 FY26 PR] CoreWeave Q2 2026 results press release (11 Aug 2026)
 #   [Q2 FY26 call] Guidance given on the Q2 2026 earnings call, as reported in press coverage
 #   [10-Q Q2 FY26] CoreWeave quarterly report for the quarter ended 30 June 2026, filed with the SEC
@@ -21,6 +22,7 @@ fy2024_actual = 1915  # [Q4 FY25 PR]
 fy2025_actual = 5131  # [Q4 FY25 PR]
 
 q2_2025_actual = 1212 # [Q2 FY26 PR] same quarter last year, for comparison
+q1_2026_actual = 2078 # [Q1 FY26 PR]
 q2_2026_actual = 2575 # [Q2 FY26 PR] most recent quarter
 
 # Management's forecast for full-year 2026 (a low and a high estimate).
@@ -75,6 +77,7 @@ stock_based_comp_fy2025 = 630 # [10-K FY25] MD&A table: 15 + 221 + 31 + 363 acro
 # A rough measure of the cash the business generates before paying for debt and new equipment.
 adjusted_ebitda_fy2025        = 3093 # [Q4 FY25 PR]
 adjusted_ebitda_margin_fy2025 = 0.60 # [Q4 FY25 PR] 3093 / 5131
+adjusted_ebitda_q1_2026        = 1157 # [Q1 FY26 PR] (56% margin)
 adjusted_ebitda_q2_2026        = 1510 # [Q2 FY26 PR]
 adjusted_ebitda_margin_q2_2026 = 0.59 # [Q2 FY26 PR]
 
@@ -102,6 +105,7 @@ total_ppe_net_2025_12_31              = 30557 # [10-K FY25] Note 5: 33,941 - 3,3
 
 cash_capex_fy2024 = 8700  # [10-K FY25] Liquidity section: "$8.7 billion"
 cash_capex_fy2025 = 10300 # [10-K FY25] Liquidity section: "$10.3 billion"
+cash_capex_q1_2026 = 7695 # [Q1 FY26 PR] "purchase of property and equipment"
 cash_capex_q2_2026 = 6422 # [Q2 FY26 PR] "purchases of property and equipment"
 # (Press coverage quotes Q2 2026 capex of ~$9.4B; that wider measure includes equipment
 #  received but not yet paid for. We use the cash figure.)
@@ -319,8 +323,16 @@ cash_taxes = 0
 
 
 [projection]
-# Phase 3: five years, 2026-2030. Year 1 (2026) is the Phase 2 base case.
-# Lists below have one value per year, in order: [2026, 2027, 2028, 2029, 2030].
+# Phase 3: 2026-2030. Lists below have one value per year, in order: [2026, 2027, 2028, 2029, 2030].
+#
+# TIMING: the model starts on 30 June 2026 (the latest balance sheet), so the first period is
+# only JULY-DECEMBER 2026. The code works out the second half of 2026 as
+#   full-year figure (guidance midpoint) MINUS what already happened in January-June (actuals).
+# The 2026 values in the lists below are FULL-YEAR figures; the code does the subtraction.
+
+# Length of each period in years: 0.5 for July-Dec 2026, then full years.
+# Interest is charged for this fraction of a year.
+period_length = [0.5, 1.0, 1.0, 1.0, 1.0]
 #
 # Source for the 2027 anchor:
 #   [Consensus Oct26] Analyst average 2027 revenue ~$26.3B (range $21.1B-$31.0B), per Yahoo
@@ -337,7 +349,10 @@ revenue_growth = [0.0, 1.05, 0.35, 0.20, 0.10]
 # EBITDA margin: OUR ASSUMPTION. Held at the Q2 2026 level (59%) every year.
 ebitda_margin = [0.59, 0.59, 0.59, 0.59, 0.59]
 
-# Capex ($ millions). 2026 = guidance midpoint [Q2 FY26 call].
+# Capex ($ millions). 2026 = full-year guidance midpoint [Q2 FY26 call]. The code subtracts the
+# $14.1B of cash capex already spent in Jan-June (Q1 7,695 + Q2 6,422), leaving ~$22.9B for
+# July-Dec. (Guidance may use a slightly wider capex definition than cash paid, so this is
+# on the cautious side: it assumes more cash still has to go out in the second half.)
 # 2027-2030: OUR ASSUMPTION. Rule of thumb from 2026: ~$2.7 of capex buys ~$1 of extra yearly
 # revenue the following year ($37B capex in 2026 -> ~$13.5B more revenue in 2027).
 # Applying that to our growth path gives roughly 25B, 19.5B, 12B, then a $10B floor in 2030
@@ -356,7 +371,6 @@ new_debt_rate = 0.095
 minimum_cash = 2000
 
 # SIMPLIFICATIONS (we'll revisit these):
-# - Year 1 starts from the 30 June 2026 debt and cash balances, like Phase 2.
 # - Interest on new borrowing starts the year AFTER it's borrowed.
 # - New borrowing isn't repaid within the 5 years.
 # - No new shares (equity) are issued; all funding gaps are filled with debt.

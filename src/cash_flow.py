@@ -120,6 +120,11 @@ def project_years(a):
             revenues.append(revenues[-1] * (1 + p["revenue_growth"][i]))
     ebitdas = [revenues[i] * p["ebitda_margin"][i] for i in range(len(years))]
 
+    # What already happened in January-June 2026 (actuals), to take away from the 2026 full-year
+    # figures, because our first period only covers July-December 2026.
+    h1_revenue = a["revenue"]["q1_2026_actual"] + a["revenue"]["q2_2026_actual"]
+    h1_capex = a["capex"]["cash_capex_q1_2026"] + a["capex"]["cash_capex_q2_2026"]
+
     # Opening balances: where CoreWeave stands on 30 June 2026.
     cash = a["debt_summary"]["cash_2026_06_30"]
     existing_debt = total_principal(loans)  # today's 16 loans, repaid on the 10-Q schedule
@@ -129,10 +134,19 @@ def project_years(a):
     rows = []
     default_year, default_reason = None, None
     for i, year in enumerate(years):
-        # 1. Operations
-        revenue, ebitda = revenues[i], ebitdas[i]
-        interest = existing_debt * existing_rate + new_debt * p["new_debt_rate"]
-        free_cash_flow = ebitda - interest - p["cash_taxes"][i] - p["capex"][i]
+        # 1. Operations. The first period is July-December 2026 = full year minus January-June.
+        length = p["period_length"][i]  # 0.5 = half a year
+        if i == 0:
+            label = f"Jul-Dec {year}"
+            revenue = revenues[0] - h1_revenue
+            ebitda = revenue * p["ebitda_margin"][0]
+            capex = p["capex"][0] - h1_capex
+        else:
+            label = str(year)
+            revenue, ebitda, capex = revenues[i], ebitdas[i], p["capex"][i]
+        # Interest is charged only for the length of the period (half a year = half the interest).
+        interest = (existing_debt * existing_rate + new_debt * p["new_debt_rate"]) * length
+        free_cash_flow = ebitda - interest - p["cash_taxes"][i] - capex
 
         # 2. Repay the principal due this year (can't repay more than is left).
         repayment = min(scheduled_repayment(a["debt_maturities"], year), existing_debt)
@@ -152,22 +166,23 @@ def project_years(a):
         interest_cover = ebitda / interest
         reason = check_default(cash, interest_cover, rules)
         if reason and default_year is None:
-            default_year, default_reason = year, reason
+            default_year, default_reason = label, reason
 
         # 5. Record the year. Closing balances carry into next year automatically.
         total_debt = existing_debt + new_debt
+        yearly_ebitda = ebitda / length  # "annualised": a half-year's EBITDA x 2, so leverage compares fairly
         rows.append({
-            "Year": year,
+            "Year": label,
             "Revenue": revenue,
             "EBITDA": ebitda,
             "Interest": interest,
-            "Capex": p["capex"][i],
+            "Capex": capex,
             "Free cash flow": free_cash_flow,
             "Debt repaid": repayment,
             "New borrowing": new_borrowing,
             "Closing cash": cash,
             "Closing debt": total_debt,
-            "Leverage (x)": total_debt / ebitda,
+            "Leverage (x)": total_debt / yearly_ebitda,
             "Forward leverage (x)": total_debt / forward_ebitda,
             "Interest cover (x)": interest_cover,
         })
@@ -185,7 +200,7 @@ def print_projection(table):
             pretty.loc[row] = [f"{x:.1f}x" for x in table.loc[row]]
         else:
             pretty.loc[row] = [f"{x:,.0f}" for x in table.loc[row]]
-    print("\nCoreWeave 5-year projection ($ millions)")
+    print("\nCoreWeave projection from 30 June 2026 ($ millions)")
     print(pretty.to_string())
 
 
