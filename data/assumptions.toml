@@ -360,3 +360,21 @@ minimum_cash = 2000
 # - Interest on new borrowing starts the year AFTER it's borrowed.
 # - New borrowing isn't repaid within the 5 years.
 # - No new shares (equity) are issued; all funding gaps are filled with debt.
+
+
+[default_rules]
+# Phase 4: when does CoreWeave count as "in default"? These are OUR ASSUMPTIONS: the 10-K says
+# CoreWeave has "specified financial covenant ratios" but doesn't publish the numbers.
+
+# 1. BORROWING LIMIT. Lenders stop lending once total debt would exceed this many times
+#    NEXT year's EBITDA. ~6x is a common ceiling for risky (non-investment-grade) borrowers.
+#    We use next year's EBITDA because GPU lenders lend against the contracted revenue the new
+#    GPUs will earn. In the final projection year (no "next year"), we use that year's EBITDA.
+max_forward_leverage = 6.0
+
+#    If CoreWeave needs more cash than lenders will provide, and its cash would fall below zero,
+#    it can't pay its bills = LIQUIDITY DEFAULT.
+
+# 2. INTEREST COVER COVENANT. If EBITDA / interest falls below this, the covenant is breached
+#    = COVENANT DEFAULT. 1.5x is a typical level in loan agreements.
+min_interest_cover = 1.5
